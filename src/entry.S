@@ -1,3 +1,7 @@
+.set A, 123
+.set B, 321
+.set C, 121
+
 .syntax unified
 .cpu cortex-m7
 .thumb
@@ -7,32 +11,25 @@
 .section .text, "ax", %progbits
 .type reset_handler, %function
 reset_handler:
-    // Zero .bss section
-    ldr r1, =__bss_start
-    ldr r2, =__bss_end
-    mov r0, #0
+    ldr r1, =A
+    ldr r2, =B
+    ldr r3, =C
+
+    mul r4, r1, r2
+    cmp r4, #10         // if (r4 >= 10)
+    blt 1f
+    // r4 >= 10, r4 = r1 | r2
+    orr r4, r1, r2
+    b 2f
 1:
-    cmp r1, r2
-    beq 2f
-    str r0, [r1]
-    add r1, r1, #4
-    b 1b
+    // r4 < 10, r4 = r1 & r2
+    and r4, r1, r2
 2:
+    // r4 *= r3
+    mul r4, r4, r3
 
-    // Copy .data section
-    ldr r1, =__data_start_src
-    ldr r2, =__data_start
-    ldr r3, =__data_end
-3:
-    cmp r2, r3
-    beq 4f
-    ldr r4, [r1]
-    str r4, [r2]
-    add r1, r1, #4
-    add r2, r2, #4
-    b 3b
-4:
-
-    b main
+_hang:
+    wfe
+    b _hang
 
 .size reset_handler, . - reset_handler
