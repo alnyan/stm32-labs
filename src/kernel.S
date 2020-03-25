@@ -2,11 +2,10 @@
 .cpu cortex-m7
 .thumb
 
-// Constants
-.set GPIOB,         0x40020400
-.set GPIO_ODR,      20
-.set RCC,           0x40023800
-.set RCC_AHB1ENR,   48
+// Input values
+.set A, 123
+.set B, 321
+.set C, 121
 
 .section .text.vectors
 // Kernel stack
@@ -19,28 +18,30 @@
 .section ".text"
 .global kernel_entry
 kernel_entry:
-    // No hosted debugging mode,
-    // Just use a blinking LED instead
-    // PB7 - LED1
-    // enable gpiob clock
-    ldr r2, =RCC
-    ldr r0, [r2, #RCC_AHB1ENR]
-    orr r0, #(1 << 1)
-    str r0, [r2, #RCC_AHB1ENR]
+    bl usart_init
 
-    // moder[7] = out
-    ldr r2, =GPIOB
-    ldr r0, [r2]
-    and r0, #~(3 << 14)
-    orr r0, #(1 << 14)
-    str r0, [r2]
+    ldr r1, =A
+    ldr r2, =B
+    ldr r3, =C
 
-    mov r1, #1
+    mul r0, r1, r2
+    cmp r0, #10         // if (r0 >= 10)
+    blt 1f
+    // r0 >= 10, r0 = r1 | r2
+    orr r0, r1, r2
+    b 2f
 1:
-    subs r1, r1, #1
-    bne 1b
-    ldr r1, =10000000
-    ldr r0, [r2, #GPIO_ODR]
-    eor r0, r0, #(1 << 7)
-    str r0, [r2, #GPIO_ODR]
-    b 1b
+    // r0 < 10, r0 = r1 & r2
+    and r0, r1, r2
+2:
+    // r0 *= r3
+    mul r0, r0, r3
+
+    // Preserve the value so it's not
+    // clobbered by putd and gdb can see it
+    mov r8, r0
+    // Output r0
+    bl usart_putd
+    mov r0, r8
+
+    b .

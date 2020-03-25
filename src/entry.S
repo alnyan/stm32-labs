@@ -12,6 +12,7 @@ reset_handler:
     ldr r0, =kernel_image
     ldr r1, [r0, #4]                            // Kernel entry
     ldr r2, [r0, #8]                            // Kernel load address
+
     // Stack
     ldr r3, [r0, #0]
     mov sp, r3

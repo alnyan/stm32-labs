@@ -8,9 +8,9 @@ struct stm_gpio {
     uint32_t pupdr;     // 0x0C
     uint32_t idr;       // 0x10
     uint32_t odr;       // 0x14
-    uint32_t bsrr;
-    uint32_t lckr;
-    uint32_t afrl;
+    uint32_t bsrr;      // 0x18
+    uint32_t lckr;      // 0x1C
+    uint32_t afrl;      // 0x20
     uint32_t afrh;
 };
 

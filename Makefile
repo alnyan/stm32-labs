@@ -1,7 +1,8 @@
 O=$(abspath build)
 OBJS=$(O)/vectors.o \
 	 $(O)/entry.o
-kernel_OBJS=$(O)/kernel.o
+kernel_OBJS=$(O)/kernel.o \
+			$(O)/usart.o
 
 HDRS=$(shell find -name "*.h" -type f)
 
