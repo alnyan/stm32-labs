@@ -17,14 +17,16 @@ reset_handler:
     ldr r3, [r0, #0]
     mov sp, r3
 
-    mov r3, #0
+    ldr r3, =_kernel_size
 1:
+    subs r3, r3, #1
+    beq 2f
+
     ldr r4, [r0, r3, lsl #2]
     str r4, [r2, r3, lsl #2]
 
-    add r3, r3, #1
-    cmps r3, _kernel_size
-    bne 1b
+    b 1b
+2:
 
     // Jump to entrypoint
     mov pc, r1
