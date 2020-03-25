@@ -4,7 +4,7 @@
 
 .global reset_handler
 
-.set _kernel_size, kernel_image_end - kernel_image
+.set _kernel_size, (kernel_image_end - kernel_image) / 4
 
 .section .text, "ax", %progbits
 .type reset_handler, %function
@@ -16,21 +16,16 @@ reset_handler:
     ldr r3, [r0, #0]
     mov sp, r3
 
-    // TODO: maybe align this word-up
-    mov r3, _kernel_size                        // Kernel size
+    mov r3, #0
 1:
-    // *dst = *src
-    ldr r4, [r0]
-    str r4, [r2]
+    ldr r4, [r0, r3, lsl #2]
+    str r4, [r2, r3, lsl #2]
 
-    // ++dst, ++src, --size
-    add r2, r2, #4
-    add r0, r0, #4
-    subs r3, r3, #4
+    add r3, r3, #1
+    cmps r3, _kernel_size
     bne 1b
 
     // Jump to entrypoint
-    mov r0, r0
     mov pc, r1
 
 .align 4
